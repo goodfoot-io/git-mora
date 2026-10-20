@@ -1,0 +1,20 @@
+{
+  "name": "git-mora-dev",
+  "private": true,
+  "packageManager": "yarn@4.18.0",
+  "workspaces": [
+    "packages/*",
+    "npm/*"
+  ],
+  "scripts": {
+    "build": "yarn workspace git-mora build",
+    "build:local": "yarn workspace git-mora build:local",
+    "build:man": "yarn workspace git-mora build:man",
+    "test": "yarn workspace git-mora test",
+    "lint": "yarn workspace git-mora lint",
+    "typecheck": "yarn workspace git-mora typecheck",
+    "check:versions": "yarn workspace git-mora check:versions",
+    "bump": "yarn workspace git-mora bump",
+    "release": "yarn workspace git-mora release"
+  }
+}

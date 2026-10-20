@@ -1,0 +1,110 @@
+# Logs
+logs
+*.log
+
+# Build artifacts
+target/
+target-cache/
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# Dependency directory
+node_modules
+
+# Users Environment Variables
+.lock-wscript
+
+.DS_Store
+
+.env
+.env.local
+.env.test
+
+# Yarn 4.x specific
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# IDE specific
+.cursor/
+*.code-workspace
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Build directories
+dist/
+*/dist/
+build/
+*/build/
+
+# Additional logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+.nyc_output
+*.lcov
+.jest/
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# VSCode extension artifacts
+*.vsix
+
+.yarn/install-state.gz
+
+.worktrees
+*.lock
+!Cargo.lock
+!yarn.lock
+.devcontainer/home/
+
+# devcontainer ssh paste-in scripts
+scripts/ssh/
+
+# git-span CLI binaries (produced by cargo build / postinstall)
+# Note: packages/git-span/bin/git-span is the committed shell stub that
+# npm bin-links against during `npm install`; postinstall replaces it
+# with a symlink to the platform binary on consumer machines.
+npm/git-span-*/bin/git-span
+npm/git-span-*/bin/git-span.exe
+npm/git-mora-*/bin/git-mora
+npm/git-mora-*/bin/git-mora.exe
+.claude/settings.local.json
+
+# Local benchmark/profiling outputs
+profiling/
+
+.devcontainer/utilities/deepseek*
+
+reports/*
+
+packages/website/.dev.vars
+.env.*
+
+# Vendored third-party code
+vendor/
+
+# opencode plugin ships its esbuild bundle checked in (published npm package)
+!plugins-opencode/git-span/dist/
+
+# Turborepo task results and logs
+.turbo/
+
+scratchpad/

@@ -1,0 +1,56 @@
+name: git-mora
+services:
+  app:
+    hostname: git-mora
+    extra_hosts:
+      - "git-mora:127.0.0.1"
+    init: true
+    cap_add:
+      - SYS_TIME
+      # Tailscale runs in TUN mode (real interface) so MagicDNS works system-wide.
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    build:
+      # Context is the repo root, not .devcontainer/: the Dockerfile COPYs the
+      # mold cc wrapper from packages/git-mora/scripts (its committed source of
+      # truth) to /usr/local/bin so ad-hoc raw cargo links through it.
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace:cached
+      # Docker Desktop host socket (docker-outside-of-docker): drives the macOS
+      # daemon from inside this container. Mounted at docker-host.sock — the
+      # devcontainers docker-outside-of-docker feature symlinks /var/run/docker.sock
+      # to it and fixes permissions at container start.
+      - /var/run/docker.sock:/var/run/docker-host.sock:cached
+      - ${HOME}/devcontainer/git-mora:/home/node:cached
+      # opencode data (WAL-mode SQLite + logs) and card worktrees are the heavy
+      # virtiofs writers; both move to container-native named volumes. Mounted at
+      # top-level /var/lib/coaxial paths — NOT nested inside /home/node — because
+      # libkrun attaches the home virtiofs bind after start, silently shadowing
+      # nested mounts. The base entrypoint symlinks the home paths here.
+      - opencode-data:/var/lib/coaxial/opencode
+      - cards-worktrees:/var/lib/coaxial/cards-worktrees
+      # Rust toolchains (rustup renames dirs into place, which the virtiofs
+      # stale-cache defect breaks) and the cargo registry/bin cache.
+      - rustup-data:/var/lib/coaxial/rustup
+      - cargo-data:/var/lib/coaxial/cargo
+      - git-mora-bashhistory:/commandhistory
+      - git-mora-cargo-target:/var/cache/git-mora/cargo-target
+    env_file:
+      - .env
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=8192
+      - CLAUDE_CONFIG_DIR=/home/node/.claude
+    # No dns: pin — `tailscale up --accept-dns` manages /etc/resolv.conf
+    # (MagicDNS at 100.100.100.100, with split-DNS to upstreams).
+    command: sleep infinity
+
+volumes:
+  git-mora-bashhistory:
+  git-mora-cargo-target:
+  opencode-data:
+  cards-worktrees:
+  rustup-data:
+  cargo-data:

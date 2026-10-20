@@ -1,0 +1,65 @@
+{
+  "name": "Git Mora",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  // Build the shared local base image (devcontainer-base:node24.16-trixie) if it
+  // isn't already present, before the compose build references it as its FROM.
+  "initializeCommand": "bash ${localWorkspaceFolder}/../devcontainer-base/ensure-base.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "biomejs.biome"
+      ],
+      "settings": {
+        "git.path": "/usr/bin/git",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "biomejs.biome",
+        "editor.codeActionsOnSave": {
+          "source.organizeImports.biome": "explicit"
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+          },
+          "zsh": {
+            "path": "zsh"
+          }
+        },
+        "remote.autoForwardPorts": false
+      }
+    }
+  },
+  "remoteUser": "node",
+  // Docker-outside-of-docker: installs the docker CLI and gives the node user
+  // access to the macOS Docker Desktop daemon (socket mounted via docker-compose.yml).
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "moby": false
+    }
+  },
+  "mounts": [
+    "source=git-mora-bashhistory,target=/commandhistory,type=volume",
+    "source=git-mora-cargo-target,target=/var/cache/git-mora/cargo-target,type=volume",
+    "source=${localWorkspaceFolder}/.git,target=/workspace/.git,type=bind,consistency=cached"
+  ],
+  "remoteEnv": {
+    "TZ": "America/New_York",
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "POWERLEVEL9K_DISABLE_GITSTATUS": "true",
+    "VSCODE_RECONNECTION_GRACE_TIME": "60000",
+    "GIT_MORA_CARGO_TARGET_ROOT": "/var/cache/git-mora/cargo-target",
+    "PATH": "${containerEnv:PATH}:/home/node/.cargo/bin:/home/node/.local/bin:/workspace/.devcontainer/utilities"
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  // The bind-mounted host socket resets to root:root 0660 on every container
+  // start, which the docker group's static gid doesn't match — chown it to
+  // node so the docker CLI (installed by docker-outside-of-docker) works
+  // without sudo. Runs on every start, not just creation, since the mount
+  // is refreshed each time.
+  "postStartCommand": "sudo chown node:node /var/run/docker-host.sock"
+}
